@@ -1,0 +1,11 @@
+multiple backend sets
+test for IPv6, protocol apps for TCP/HTTP2/gRPC/websocket
+Tests for different timeouts, keep alive in backend servers.
+mTLS between clients/LB and LB/backend pairs
+
+DNS entry for app in VCN of clients??
+
+-----
+
+add cert to mac
+add dns entry to mac to point to LB public ip

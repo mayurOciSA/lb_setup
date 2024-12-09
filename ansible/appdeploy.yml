@@ -1,0 +1,90 @@
+---
+- name: Deploy Python Web Application
+  hosts: all
+  become: true
+  vars:
+    app_dir: /opt/python_app
+    service_name: python-web-app
+
+  tasks:
+    - name: Ensure required packages are installed
+      ansible.builtin.dnf:
+        name:
+          - python3
+          - firewalld
+        state: present
+
+    - name: Ensure firewalld is running and enabled
+      ansible.builtin.service:
+        name: firewalld
+        state: started
+        enabled: true
+
+    - name: Open port 8080 for the application
+      ansible.posix.firewalld:
+        port: 8080/tcp
+        permanent: true
+        state: enabled
+      notify: Reload firewalld
+
+    - name: Create application directory
+      ansible.builtin.file:
+        path: "{{ app_dir }}"
+        state: directory
+        mode: '0755'
+
+    - name: Copy app.py to the server
+      ansible.builtin.copy:
+        src: ./app.py
+        dest: "{{ app_dir }}/app.py"
+        mode: '0644'
+
+    - name: Copy requirements.txt to the server
+      ansible.builtin.copy:
+        src: ./requirements.txt
+        dest: "{{ app_dir }}/requirements.txt"
+        mode: '0644'
+
+    - name: Create virtual environment
+      ansible.builtin.command:
+        cmd: python3 -m venv venv
+        chdir: "{{ app_dir }}"
+        creates: "{{ app_dir }}/venv"
+
+    - name: Install dependencies
+      ansible.builtin.pip:
+        requirements: "{{ app_dir }}/requirements.txt"
+        virtualenv: "{{ app_dir }}/venv"
+
+    - name: Create systemd service file
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/{{ service_name }}.service
+        content: |
+          [Unit]
+          Description=Python Web Application
+          After=network.target
+
+          [Service]
+          User=root
+          Group=root
+          WorkingDirectory={{ app_dir }}
+          Environment="PATH={{ app_dir }}/venv/bin"
+          ExecStart={{ app_dir }}/venv/bin/python {{ app_dir }}/app.py
+          Restart=always
+
+          [Install]
+          WantedBy=multi-user.target
+        mode: '0644'
+      notify: Restart web application
+
+  handlers:
+    - name: Reload firewalld
+      ansible.builtin.service:
+        name: firewalld
+        state: reloaded
+
+    - name: Restart web application
+      ansible.builtin.systemd:
+        name: "{{ service_name }}"
+        state: restarted
+        enabled: true

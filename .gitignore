@@ -1,0 +1,11 @@
+certs.tf.txt
+local.tfvars
+terraform.tfstate
+terraform.tfstate.backup
+ansible/webapp.yml
+certsdir/cert_ca.pem
+certsdir/cert_ca.txt
+certsdir/cert_hs1.pem
+certsdir/cert_hs1.txt
+certsdir/cert_hs2.pem
+certsdir/cert_hs2.txt
