@@ -1,7 +1,6 @@
 multiple backend sets
 test for IPv6, protocol apps for TCP/HTTP2/gRPC/websocket
 Tests for different timeouts, keep alive in backend servers.
-mTLS between clients/LB and LB/backend pairs
 
 DNS entry for app in VCN of clients??
 
@@ -9,3 +8,13 @@ DNS entry for app in VCN of clients??
 
 add cert to mac
 add dns entry to mac to point to LB public ip
+
+check lb's access-logs when different backendset is selected by listener that its default one
+
+mTLS between clients/LB and LB/backend pairs == total 4 certs
+vs POINT-TO-POINT SSL cert with LB and then with backendserver == total 2 certs
+
+
+drain and backup
+
+Rule Set => Routing Policy => Path Route Set

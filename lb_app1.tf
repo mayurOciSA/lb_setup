@@ -56,3 +56,4 @@ resource "oci_load_balancer_listener" "lb_listener_hs1" {
     verify_depth            = "1"
   }
 }
+

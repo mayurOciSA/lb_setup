@@ -30,7 +30,12 @@ resource "oci_core_default_security_list" "oci-lbbkend-sb-security-list" {
 
   ingress_security_rules {
     protocol = "all"
-    source   = "0.0.0.0/0"
+    source   = "${data.external.public_ip.result.ip_address}/32"
+  }
+
+  ingress_security_rules {
+    protocol = "all"
+    source   = "${oci_core_vcn.oci-vcn.cidr_blocks[0]}"
   }
 }
 
@@ -54,4 +59,13 @@ resource "oci_core_default_route_table" "oci-default-route-table" {
     network_entity_id = oci_core_internet_gateway.IGW.id
     destination       = "0.0.0.0/0"
   }
+}
+
+# Fetch the public IP using a local-exec provisioner 
+data "external" "public_ip" { 
+  program = ["sh", "-c", "curl -s https://ipinfo.io/ip | jq -n --arg ip $(cat) '{ip_address: $ip}'"]
+}
+
+output "Ur_Public_IP" {
+  value = "You can connect to LB and backend servers only from your devbox public IP: \"${data.external.public_ip.result.ip_address}\" "
 }

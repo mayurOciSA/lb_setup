@@ -7,13 +7,15 @@ app = Flask(__name__)
 def echo_request():
     return jsonify({
         'method': request.method,
+        'path': request.path,
         'headers': dict(request.headers),
         'args': request.args,
         'form': request.form,
         'json': request.json if request.is_json else None,  # Ensure JSON data is handled correctly
         'data': request.data.decode('utf-8') if request.data else None,  # Handle raw data properly
         'bk_hs_name': socket.gethostname(),  # Backend server hostname
-        'bk_hs_ip': socket.gethostbyname(socket.gethostname())  # Backend server IP address
+        'bk_hs_ip': socket.gethostbyname(socket.gethostname()),  # Backend server IP address
+        'may_be_lb_backend_pvt_ip': request.remote_addr
     })
 
 # Root endpoint to check if the server is running
@@ -29,6 +31,11 @@ def echo():
 # API endpoints for different HTTP methods
 @app.route('/get', methods=['GET'])
 def get_method():
+    return echo_request()
+
+# Should never be hit for Listener 2, with redirect rule set of LB of Listener 2
+@app.route('/go_to_echo_rule_set', methods=['GET'])
+def go_to_echo_rule_set_method():
     return echo_request()
 
 @app.route('/post', methods=['POST'])
@@ -91,6 +98,11 @@ def restricted():
 # API endpoint to demonstrate SSL termination (Layer 4)
 @app.route('/ssl', methods=['GET'])
 def ssl():
+    return echo_request()
+
+# API endpoints for different HTTP methods
+@app.route('/routing_policy_demo', methods=['GET'])
+def routing_policy_demo():
     return echo_request()
 
 if __name__ == '__main__':

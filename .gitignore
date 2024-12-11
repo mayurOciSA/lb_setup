@@ -1,4 +1,5 @@
 certs.tf.txt
+hosts.txt
 local.tfvars
 terraform.tfstate
 terraform.tfstate.backup

@@ -22,6 +22,12 @@ output "lb_public_ip" {
   value = [oci_load_balancer.lb.ip_address_details]
 }
 
+output "get_lb_cli" {
+  value = "Get LB details with OCI CLI Command: oci lb load-balancer get --load-balancer-id '${oci_load_balancer.lb.id}' --region '${var.oci_region}' "
+}
+
+
+
 
 
 
