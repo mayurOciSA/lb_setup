@@ -58,3 +58,18 @@ resource "null_resource" "remove_host_entry_hs2" {
      when    = destroy
   }
 }
+
+if 'verify_peer_certificate=false', the value or presence of verify_depth is NO-OP
+
+mTLS is only supported with LB managed certificates. 
+Seems to be the case atleast on the UI.
+
+
+certificate_name is 
+for LB managed CA bundle(s) only. 
+And it only contains one or more certificate chains. 
+And each such chain contain Root CA cert and may be intermediate CA certs of that chains.
+
+
+
+

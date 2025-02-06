@@ -39,7 +39,7 @@ output "backend_instance_public_ip_hs1" {
 resource "time_sleep" "wait_minutes_hs1" {
   count               = var.backend_hs1_count
   depends_on = [oci_core_instance.lb_bkend_hs1]
-  create_duration = "0.5m"
+  create_duration = "0.3m"
 }
 
 resource "null_resource" "execute_ansible_playbook_hs1" {

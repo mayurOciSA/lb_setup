@@ -63,6 +63,11 @@ variable "backend_hs2_count" {
   default = 1
 }
 
+variable "backend_hs3_count" {
+  type = number
+  default = 1
+}
+
 data "oci_core_images" "oracle_linux_images_oci" {
   compartment_id           = var.tenancy_ocid
   operating_system         = "Oracle Linux"

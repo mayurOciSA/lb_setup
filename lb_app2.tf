@@ -22,9 +22,9 @@ resource "oci_load_balancer_backend" "bkend_hs2" {
 
 resource "oci_load_balancer_certificate" "lb_cert_hs2" {
   load_balancer_id   = oci_load_balancer.lb.id
-  ca_certificate     = tls_self_signed_cert.ca.cert_pem
+  ca_certificate     = tls_self_signed_cert.root_ca_server.cert_pem
 
-  certificate_name   = "self_cert_hs2"
+  certificate_name   = "self_cert_hs2_listener"
   private_key        = tls_private_key.server_hs2.private_key_pem
   public_certificate = tls_locally_signed_cert.server_hs2.cert_pem
 

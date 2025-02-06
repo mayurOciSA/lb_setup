@@ -1,9 +1,9 @@
-resource "oci_core_instance" "lb_bkend_hs2" {
-  count               = var.backend_hs2_count
+resource "oci_core_instance" "lb_bkend_hs3" {
+  count               = var.backend_hs3_count
 
   availability_domain = data.oci_identity_availability_domains.ad_list.availability_domains[count.index % length(data.oci_identity_availability_domains.ad_list.availability_domains)].name
   compartment_id      = var.compartment_ocid
-  display_name        = "bkend_hs2_${count.index}"
+  display_name        = "bkend_hs3_${count.index}"
   shape               = var.instance_shape
 
   create_vnic_details {
@@ -11,7 +11,7 @@ resource "oci_core_instance" "lb_bkend_hs2" {
     display_name              = "primary_vnic"
     assign_public_ip          = true
     assign_private_dns_record = true
-    hostname_label            = "hs2-bk-${count.index}"
+    hostname_label            = "hs3-bk-${count.index}"
   }
   
   shape_config {
@@ -28,30 +28,30 @@ resource "oci_core_instance" "lb_bkend_hs2" {
   }
 }
 
-output "backend_instance_private_ip_hs2" {
-  value = one(oci_core_instance.lb_bkend_hs2[*].private_ip)
+output "backend_instance_private_ip_hs3" {
+  value = one(oci_core_instance.lb_bkend_hs3[*].private_ip)
 }
 
-output "backend_instance_public_ip_hs2" {
-  value = one(oci_core_instance.lb_bkend_hs2[*].public_ip)
+output "backend_instance_public_ip_hs3" {
+  value = one(oci_core_instance.lb_bkend_hs3[*].public_ip)
 }
 
-resource "time_sleep" "wait_minutes_hs2" {
-  count               = var.backend_hs2_count
-  depends_on = [oci_core_instance.lb_bkend_hs2]
+resource "time_sleep" "wait_minutes_hs3" {
+  count               = var.backend_hs3_count
+  depends_on = [oci_core_instance.lb_bkend_hs3]
   create_duration = "0.3m"
 }
 
-resource "null_resource" "execute_ansible_playbook_hs2" {
-  count               = var.backend_hs2_count
-  depends_on = [time_sleep.wait_minutes_hs2]
+resource "null_resource" "execute_ansible_playbook_hs3" {
+  count               = var.backend_hs3_count
+  depends_on = [time_sleep.wait_minutes_hs3]
 
   // Ansible integration
   provisioner "remote-exec" {
-    inline = ["echo About to run Ansible for APP2 deployment!"]
+    inline = ["echo About to run Ansible for APP1 deployment!"]
 
     connection {
-      host        = oci_core_instance.lb_bkend_hs2[count.index].public_ip
+      host        = oci_core_instance.lb_bkend_hs3[count.index].public_ip
       type        = "ssh"
       user        = "opc"
       private_key = file("${var.ssh_private_key_local_path}")
@@ -59,7 +59,7 @@ resource "null_resource" "execute_ansible_playbook_hs2" {
   }
 
   provisioner "local-exec" {
-    command = "sleep 20; ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u opc -i '${oci_core_instance.lb_bkend_hs2[count.index].public_ip},' --private-key ${var.ssh_private_key_local_path} ./ansible/appdeploy.yml -v"
+    command = "sleep 20; ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u opc -i '${oci_core_instance.lb_bkend_hs3[count.index].public_ip},' --private-key ${var.ssh_private_key_local_path} ./ansible/appdeploy.yml -v"
   }
 }
 
