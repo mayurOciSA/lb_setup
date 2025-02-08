@@ -29,12 +29,12 @@ variable "instance_memory_in_gbs" {
 }
 
 variable "ssh_public_key" {
-  description = "Contents of SSH public key file. Used to login to instance with corresponding private key. Required for automation with Ansible."
+  description = "Contents of SSH public key file. Used to enable login to instance with corresponding private key. Required for automation with Ansible. Will be used for all VMs of all backend sets."
   type        = string
 }
 
 variable "ssh_private_key_local_path" {
-  description = "Local Path of SSH private key file. Will be used for all VMs."
+  description = "Local Path of SSH private key file. Used to login to instance. Required for automation with Ansible. Will be used for all VMs of all backend sets."
   type        = string
 }
 
