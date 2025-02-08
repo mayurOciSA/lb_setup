@@ -80,3 +80,14 @@ how can pvt key be optional?
 
 
 $ curl --cert client.crt --key client.key --cacert ca.crt https://myserver.internal.net:443
+
+curl -v  --cert ./certsdir/client_hs3.pem:./certsdir/intermediate_ca_client.pem --key ./certsdir/client_hs3_key.pem --cacert ./certsdir/
+
+curl  --cert ./certsdir/client_hs3.pem:./certsdir/intermediate_ca_client.pem --key ./certsdir/client_hs3_key.pem --cacert ./certsdir/root_ca_server.pem https://hs3.free.com:443/get | jq
+
+openssl verify -verbose -CAfile ./certsdir/root_ca_client.pem -untrusted ./certsdir/intermediate_ca_client.pem ./certsdir/client_hs3.pem 
+
+openssl verify -trusted ./certsdir/root_ca_client.pem -untrusted ./certsdir/intermediate_ca_client.pem ./certsdir/client_hs3.pem 
+
+
+openssl verify -trusted ./certsdir/root_ca_server.pem -untrusted ./certsdir/intermediate_ca_server.pem ./certsdir/server_hs3.pem 

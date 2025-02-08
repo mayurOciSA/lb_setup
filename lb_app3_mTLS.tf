@@ -53,21 +53,21 @@ resource "oci_load_balancer_certificate" "client_ca_bundle_hs3" {
   }
 }
 
-resource "oci_load_balancer_rule_set" "fwd_client_certs_to_backend" {
-  name              = "fwd_client_certs_to_backend_hs3"
-  load_balancer_id  = oci_load_balancer.lb.id
+# resource "oci_load_balancer_rule_set" "fwd_client_certs_to_backend" {
+#   name              = "fwd_client_certs_to_backend_hs3"
+#   load_balancer_id  = oci_load_balancer.lb.id
 
-  items {
-    action      = "ADD_HTTP_REQUEST_HEADER"
-    description = "Ruleset to add client certificate as request header"
-    header      = "x-client-cert"
-    value       = "{oci_lb_client_cert}"
-  }
+#   items {
+#     action      = "ADD_HTTP_REQUEST_HEADER"
+#     description = "Ruleset to add client certificate as request header"
+#     header      = "x-client-cert"
+#     value       = "{oci_lb_client_cert}"
+#   }
 
-  lifecycle {
-    ignore_changes = [items]
-  }
-}
+#   lifecycle {
+#     ignore_changes = [items]
+#   }
+# }
 
 resource "oci_load_balancer_listener" "lb_listener_hs3_mtls" {
   load_balancer_id         = oci_load_balancer.lb.id
@@ -80,7 +80,7 @@ resource "oci_load_balancer_listener" "lb_listener_hs3_mtls" {
     idle_timeout_in_seconds = 300
   }
 
-  rule_set_names = [ oci_load_balancer_rule_set.fwd_client_certs_to_backend.name ]
+  # rule_set_names = [ oci_load_balancer_rule_set.fwd_client_certs_to_backend.name ]
 
   ssl_configuration {
     # LB listener's certificate
@@ -91,7 +91,7 @@ resource "oci_load_balancer_listener" "lb_listener_hs3_mtls" {
     
     # client's CA bundle
     #trusted_certificate_authority_ids = [oci_load_balancer_certificate.client_ca_bundle_hs3.id]
-    verify_depth            = "1"
+    verify_depth            = "3"
   }
 }
 
@@ -101,7 +101,8 @@ resource "oci_load_balancer_certificate" "lb_cert_hs3_with_client_bundle" {
   certificate_name   = "hs3_client_server_mtls_ca_bundle"
 
   # CA Bundle as per rules here https://serverfault.com/questions/476576/how-to-combine-various-certificates-into-single-pem
-  ca_certificate     = join("", [tls_locally_signed_cert.server_hs3.cert_pem, tls_locally_signed_cert.intermediate_ca_server.cert_pem, tls_self_signed_cert.root_ca_client.cert_pem])
+  ca_certificate     = join("", [tls_locally_signed_cert.intermediate_ca_server.cert_pem, tls_self_signed_cert.root_ca_server.cert_pem, 
+                                 tls_locally_signed_cert.intermediate_ca_client.cert_pem, tls_self_signed_cert.root_ca_client.cert_pem])
 
   # public certficate abc of the server and server private_key for its cert abc
   public_certificate = tls_locally_signed_cert.server_hs3.cert_pem
