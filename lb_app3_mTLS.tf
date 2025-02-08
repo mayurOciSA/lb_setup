@@ -25,6 +25,7 @@ resource "oci_load_balancer_certificate" "lb_cert_hs3" {
   ca_certificate     = tls_self_signed_cert.root_ca_server.cert_pem
 
   certificate_name   = "self_cert_hs3_listener"
+
   private_key        = tls_private_key.server_hs3.private_key_pem
   public_certificate = tls_locally_signed_cert.server_hs3.cert_pem
 
@@ -83,15 +84,34 @@ resource "oci_load_balancer_listener" "lb_listener_hs3_mtls" {
 
   ssl_configuration {
     # LB listener's certificate
-    certificate_name        = oci_load_balancer_certificate.lb_cert_hs3.certificate_name
+    certificate_name        = oci_load_balancer_certificate.lb_cert_hs3_with_client_bundle.certificate_name
 
     # mTLS configs below
     verify_peer_certificate = true 
-     # client's CA bundle
-     trusted_certificate_authority_ids = [oci_load_balancer_certificate.client_ca_bundle_hs3.id]
+    
+    # client's CA bundle
+    #trusted_certificate_authority_ids = [oci_load_balancer_certificate.client_ca_bundle_hs3.id]
     verify_depth            = "1"
   }
 }
 
 
+resource "oci_load_balancer_certificate" "lb_cert_hs3_with_client_bundle" {
+  load_balancer_id   = oci_load_balancer.lb.id
+  certificate_name   = "hs3_client_server_mtls_ca_bundle"
 
+  # CA Bundle as per rules here https://serverfault.com/questions/476576/how-to-combine-various-certificates-into-single-pem
+  ca_certificate     = join("", [tls_locally_signed_cert.server_hs3.cert_pem, tls_locally_signed_cert.intermediate_ca_server.cert_pem, tls_self_signed_cert.root_ca_client.cert_pem])
+
+  # public certficate abc of the server and server private_key for its cert abc
+  public_certificate = tls_locally_signed_cert.server_hs3.cert_pem
+  private_key        = tls_private_key.server_hs3.private_key_pem
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+output "ca_bundle" {
+  value = join("", [tls_locally_signed_cert.server_hs3.cert_pem, tls_locally_signed_cert.intermediate_ca_server.cert_pem, tls_self_signed_cert.root_ca_client.cert_pem])
+}

@@ -18,3 +18,19 @@ vs POINT-TO-POINT SSL cert with LB and then with backendserver == total 2 certs
 drain and backup
 
 Rule Set => Routing Policy => Path Route Set
+
+
+# resource "local_file" "certificate" {
+
+#   content  = jsonencode({
+#     server_hs1_certificate_pem    = tls_locally_signed_cert.server_hs1.cert_pem
+#     server_hs1_private_key_pem     = tls_private_key.server_hs1.private_key_pem
+
+#     server_hs2_certificate_pem    = tls_locally_signed_cert.server_hs2.cert_pem
+#     server_hs2_private_key_pem     = tls_private_key.server_hs2.private_key_pem
+
+#     ca_certificate_pem  = tls_self_signed_cert.root_ca_server.cert_pem
+#     ca_private_key_pem  = tls_private_key.ca.private_key_pem
+#   })
+#   filename = "${path.module}/certsdir/certificate.json"
+# }

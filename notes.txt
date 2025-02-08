@@ -70,6 +70,13 @@ for LB managed CA bundle(s) only.
 And it only contains one or more certificate chains. 
 And each such chain contain Root CA cert and may be intermediate CA certs of that chains.
 
+https://registry.terraform.io/providers/oracle/oci/latest/docs/resources/load_balancer_certificate
+when root ca is used?
+why everything is optional including main certs?
+how can pvt key be optional?
 
 
 
+
+
+$ curl --cert client.crt --key client.key --cacert ca.crt https://myserver.internal.net:443
