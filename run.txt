@@ -1,0 +1,33 @@
+Setup:
+Copy local.example.tfvars as local.tfvars.
+Fill up local.tfvars as applicable to your OCI account and your credentials.
+Run - terraform apply -var-file=local.tfvars -auto-approve
+
+To test mTLS, from tf directory run:
+curl  --cert ./certsdir/client_hs3.pem:./certsdir/intermediate_ca_client.pem --key ./certsdir/client_hs3_key.pem --cacert ./certsdir/root_ca_server.pem https://hs3.free.com:443/get | jq
+In response you should get value of "X-Client-Cert". example response from virtual host 'hs3' below
+
+{
+  "args": {},
+  "bk_hs_ip": "10.0.0.76",
+  "bk_hs_name": "hs3-bk-0",
+  "data": null,
+  "form": {},
+  "headers": {
+    "Accept": "*/*",
+    "Host": "hs3.free.com",
+    "User-Agent": "curl/8.7.1",
+    "X-Client-Cert": "-----BEGIN CERTIFICATE-----dsdfsf-----END CERTIFICATE-----",
+    "X-Forwarded-For": "104.180.255.40",
+    "X-Forwarded-Host": "hs3.free.com:443",
+    "X-Forwarded-Port": "443",
+    "X-Forwarded-Proto": "https",
+    "X-Real-Ip": "104.180.255.40",
+    "X-Request-Trace-Id": "ecd19b8ecf4666cbc7028c17545bdeb6"
+  },
+  "json": null,
+  "may_be_lb_backend_pvt_ip": "10.0.0.107",
+  "method": "GET",
+  "path": "/get"
+}
+Only hostname hs3(& its listener) has mTLS on LB front side. Other listeners hs1 and hs2 support only server side TLS.

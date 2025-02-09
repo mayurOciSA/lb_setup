@@ -61,6 +61,7 @@ resource "tls_cert_request" "server_hs1" {
   # The CSR contains information about your organization and the domain name for which you're requesting the certificate
   private_key_pem = tls_private_key.server_hs1.private_key_pem
   subject {
+      # CN is the domain name for which you're requesting the certificate, and it has to match, as clients will check it, in TLS
       common_name  = "hs1.free.com"
       organization = "server_hs1 Example"
     }
@@ -252,7 +253,8 @@ resource "tls_private_key" "client_hs3" {
 resource "tls_cert_request" "client_hs3" {
   private_key_pem = tls_private_key.client_hs3.private_key_pem
   subject {
-      common_name  = "client_hs3 example.com"
+      // can be anything, servers typically do not 'check' client's CN(in mTLS), but clients do check server's CN always(TLS or mTLS)
+      common_name  = "client_hs3 example.com" 
       organization = "client_hs3 Example"
     }
 }
@@ -319,7 +321,13 @@ output "mtls_client_curl" {
   # cacert is root CA of server to be trusted by client
   # cert is client's cert chain/bundle
 
-  value = "curl --cert ${path.module}/certsdir/client_hs3.pem:${path.module}/certsdir/intermediate_ca_client.pem --key ${path.module}/certsdir/client_hs3_key.pem --cacert ${path.module}/certsdir/root_ca_server.pem https://hs3.free.com:443/get"
+  value = <<EOF
+  curl -s --resolve hs3.free.com:443:${oci_load_balancer.lb.ip_address_details[0].ip_address} --include \
+  --cert ${path.module}/certsdir/client_hs3.pem:${path.module}/certsdir/intermediate_ca_client.pem \
+  --key ${path.module}/certsdir/client_hs3_key.pem \
+  --cacert ${path.module}/certsdir/root_ca_server.pem https://hs3.free.com:443/get \
+  |  awk 'NR <= 6 { print; next } { print | "jq ."}'
+  EOF
 }
 
 

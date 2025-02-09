@@ -90,8 +90,8 @@ resource "oci_load_balancer_listener" "lb_listener_hs3_mtls" {
     verify_peer_certificate = true 
     
     # client's CA bundle
-    #trusted_certificate_authority_ids = [oci_load_balancer_certificate.client_ca_bundle_hs3.id]
-    verify_depth            = "3"
+    # trusted_certificate_authority_ids = [oci_load_balancer_certificate.client_ca_bundle_hs3.id]
+    verify_depth            = "2" # TODO: min 2 needed. is it [length(cert chain)-1] ? and update docs for "Client Cert Error", make sure vd is right
   }
 }
 
@@ -102,7 +102,11 @@ resource "oci_load_balancer_certificate" "lb_cert_hs3_with_client_bundle" {
 
   # CA Bundle as per rules here https://serverfault.com/questions/476576/how-to-combine-various-certificates-into-single-pem
   ca_certificate     = join("", [tls_locally_signed_cert.intermediate_ca_server.cert_pem, tls_self_signed_cert.root_ca_server.cert_pem, 
-                                 tls_locally_signed_cert.intermediate_ca_client.cert_pem, tls_self_signed_cert.root_ca_client.cert_pem])
+                                 
+                                 # TODO: server should not need client's intermediate CA, if client is giving it in the bundle with --cert
+                                 # but as of now, if not provided, mTLS request fails. 
+                                 tls_locally_signed_cert.intermediate_ca_client.cert_pem,  
+                                 tls_self_signed_cert.root_ca_client.cert_pem])
 
   # public certficate abc of the server and server private_key for its cert abc
   public_certificate = tls_locally_signed_cert.server_hs3.cert_pem

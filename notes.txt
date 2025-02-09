@@ -77,6 +77,10 @@ how can pvt key be optional?
 
 
 
+curl --location 'https://hs2.free.com/get' \
+--header 'Host: hs1.free.com' \
+--header 'User-Agent: mobile' \
+--cacert ./certsdir/root_ca_server.pem
 
 
 $ curl --cert client.crt --key client.key --cacert ca.crt https://myserver.internal.net:443
@@ -88,6 +92,5 @@ curl  --cert ./certsdir/client_hs3.pem:./certsdir/intermediate_ca_client.pem --k
 openssl verify -verbose -CAfile ./certsdir/root_ca_client.pem -untrusted ./certsdir/intermediate_ca_client.pem ./certsdir/client_hs3.pem 
 
 openssl verify -trusted ./certsdir/root_ca_client.pem -untrusted ./certsdir/intermediate_ca_client.pem ./certsdir/client_hs3.pem 
-
 
 openssl verify -trusted ./certsdir/root_ca_server.pem -untrusted ./certsdir/intermediate_ca_server.pem ./certsdir/server_hs3.pem 
