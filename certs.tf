@@ -322,11 +322,13 @@ output "mtls_client_curl" {
   # cert is client's cert chain/bundle
 
   value = <<EOF
-  curl -s --resolve hs3.free.com:443:${oci_load_balancer.lb.ip_address_details[0].ip_address} --include \
-  --cert ${path.module}/certsdir/client_hs3.pem:${path.module}/certsdir/intermediate_ca_client.pem \
-  --key ${path.module}/certsdir/client_hs3_key.pem \
-  --cacert ${path.module}/certsdir/root_ca_server.pem https://hs3.free.com:443/get \
-  |  awk 'NR <= 6 { print; next } { print | "jq ."}'
+
+        curl -s --resolve hs3.free.com:443:${oci_load_balancer.lb.ip_address_details[0].ip_address} --include \
+        --cert ${path.module}/certsdir/client_hs3.pem:${path.module}/certsdir/intermediate_ca_client.pem \
+        --key ${path.module}/certsdir/client_hs3_key.pem \
+        --cacert ${path.module}/certsdir/root_ca_server.pem https://hs3.free.com:443/get \
+        |  awk 'NR <= 6 { print; next } { print | "jq ."}'
+
   EOF
 }
 

@@ -6,9 +6,10 @@ app = Flask(__name__)
 # Function to echo the entire request content
 def echo_request():
     return jsonify({
+        'Description': 'This is a test demo application for OCI Layer 7/Application Load Balancer!\n Each response is just reflection of input request to backend application, which is running on a compute instance.',
         'method': request.method,
         'path': request.path,
-        'headers': dict(request.headers),
+        'headers_from_the_request': dict(request.headers),
         'args': request.args,
         'form': request.form,
         'json': request.json if request.is_json else None,  # Ensure JSON data is handled correctly
